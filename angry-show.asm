@@ -1,10 +1,9 @@
-.data
 # CORES DO MORDECAI
-.word 0x00000000 # PRETO
-.word 0x00639bff # AZUL CLARO
-.word 0x00ffffff # BRANCO
-.word 0x001d2e97 # AZUL MARINHO
-.word 0x00847e87 # CINZA
+# 000000 # PRETO
+# 639bff # AZUL CLARO
+# ffffff # BRANCO
+# 1d2e97 # AZUL MARINHO
+# 847e87 # CINZA
 
 # CORES DO CENÁRIO
 # 7aacdd -> Azul escuro (Céu)
@@ -24,30 +23,36 @@
 # 35c924 -> Verde levemente mais claro
 # 02001b -> Contorno
 
+# CORES DO PORCO
+# 72ff38 -> Pele do porco
+# 03b603 -> Nariz do porco 
+
 .text
 main:
 	lui $4, 0x1001
-	jal desenhaFundo
+	jal desenharFundo
 	
 	lui $4, 0x1001
 	addi $4, $4, 19456 # Posição inicial do personagem
-	jal desenhaMordecai
-	addi $8, $0, 16	
+	jal desenharMordecai
+	jal desenharPorco
 fim:	
 	addi $2, $0, 10
 	syscall
 
-######################################
-# === Rotina para desenhar fundo === #
-# Entradas:                          #	 				
-#	$4: endereço                 #
-# Saída: void                        #
-# Usa (sem preservar):               #
-#	$16: alcance do laço         #
-#	$17: endereço local          #
-#	$18: cor local               #
-######################################
-desenhaFundo:
+##########################################
+# ===== Rotina para desenhar fundo ===== #
+# Entradas:                              #	 				
+#	$4: endereço                     #
+# Saída: void                            #
+# Usa (sem preservar):                   #
+#	$16: alcance do laço             #
+#	$17: endereço local              #
+#	$18: cor local                   #
+# O cenário é armazenado 32768 endereços #
+# distantes dos endereços do display     #
+##########################################
+desenharFundo:
 	addi $16, $0, 2048 # i
 	add $17, $0, $4 # endereço local
 	ori $18, $0, 0x007aac # cor local
@@ -56,6 +61,7 @@ desenhaFundo:
 forFundo1:
 	beq $16, $0, endForFundo1
 	sw $18, 0($17)
+	sw $18, 32768($17)
 	addi $17, $17, 4 # endereço local + 4
 	addi $16, $16, -1 # i-1
 	j forFundo1
@@ -67,6 +73,7 @@ endForFundo1:
 forFundo2:
 	beq $16, $0, endForFundo2
 	sw $18, 0($17)
+	sw $18, 32768($17)
 	addi $17, $17, 4
 	addi $16, $16, -1
 	j forFundo2
@@ -78,6 +85,7 @@ endForFundo2:
 forFundo3:
 	beq $16, $0, endForFundo3
 	sw $18, 0($17)
+	sw $18, 32768($17)
 	addi $17, $17, 4
 	addi $16, $16, -1
 	j forFundo3
@@ -89,6 +97,7 @@ endForFundo3:
 forFundo4:
 	beq $16, $0, endForFundo4
 	sw $18, 0($17)
+	sw $18, 32768($17)
 	addi $17, $17, 4
 	addi $16, $16, -1
 	j forFundo4
@@ -100,6 +109,7 @@ endForFundo4:
 forFundo5:
 	beq $16, $0, endForFundo5
 	sw $18, 0($17)
+	sw $18, 32768($17)
 	addi $17, $17, 4
 	addi $16, $16, -1
 	j forFundo5
@@ -111,16 +121,11 @@ endForFundo5:
 forFundo6:
 	beq $16, $0, endForFundo6
 	sw $18, 0($17)
+	sw $18, 32768($17)
 	addi $17, $17, 4
 	addi $16, $16, -1
 	j forFundo6
 endForFundo6:
-
-
-
-
-
-
 	jr $31 # Volta para a instrução de $31
 
 ############################################
@@ -129,14 +134,13 @@ endForFundo6:
 #	$4: endereço de início do desenho  #
 # Saída:                                   #
 #        void                              #
-# Usa (sem preservar):                     #   
+# Usa (sem preservar):                     #
 #	$17: endereço local dos pixels     #
 #	$18: cor local                     #
 #                                          #
 # De uma linha para outra soma 512         #
-#                                          #
 ############################################
-desenhaMordecai:
+desenharMordecai:
 	add $17, $0, $4 # endereço local dos pixels
 	ori $18, $0, 0x0000 # cor local
 
@@ -329,4 +333,56 @@ desenhaMordecai:
 	sw $18, 6196($17)
 	sw $18, 6200($17)
 	# FIM PINTURA DA BOCA	
+	jr $31
+
+############################################
+# === Rotina para desenhar o porco ===  #
+# Entradas:                                #	 				
+#	$4: endereço de início do desenho  #
+# Saída:                                   #
+#        void                              #
+# Usa (sem preservar):                     #  
+#	$17: endereço local dos pixels     #
+#	$18: cor local                     #
+#                                          #
+# De uma linha para outra soma 512         #
+#                                          #
+############################################
+desenharPorco:
+	add $17, $0, $4 # Endereço local
+	addi $17, $17, 128
+	ori $18, $0, 0x0000 
+	sll $18, $18, 8
+	ori $18, $18, 0x00 # Cor local: Preto
+	
+	sw $18, 0($17)
+	sw $18, 4($17)
+	sw $18, 28($17)
+	sw $18, 32($17)
+	sw $18, 512($17)
+	sw $18, 520($17)
+	sw $18, 524($17)
+	sw $18, 528($17)
+	sw $18, 532($17)
+	sw $18, 536($17)
+	sw $18, 544($17)
+	sw $18, 1060($17)
+	sw $18, 1576($17)
+	sw $18, 2092($17)
+	sw $18, 2604($17)
+	sw $18, 3116($17)
+	sw $18, 3628($17)
+	sw $18, 4140($17)
+	sw $18, 4652($17)
+	sw $18, 5164($17)	
+	sw $18, 5672($17)
+	sw $18, 6180($17)
+	sw $18, 6688($17)
+	sw $18, 6684($17)
+	sw $18, 6680($17)
+	sw $18, 6676($17)
+	sw $18, 6672($17)
+	sw $18, 6668($17)
+	sw $18, 6664($17)
+	sw $18, 6660($17)
 	jr $31
