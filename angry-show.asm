@@ -5,7 +5,7 @@
 # 1d2e97 # AZUL MARINHO
 # 847e87 # CINZA
 
-# CORES DO CENÁRIO
+# CORES DO CEN�?RIO
 # 7aacdd -> Azul escuro (Céu)
 # a6d9f9 -> Azul levemente mais claro (Céu intermédio entre claro e escuro)
 # d1eeff -> Azul claro (Céu mais claro)
@@ -189,7 +189,7 @@ desenharMordecai:
 	add $17, $0, $4 # endereço local dos pixels
 	ori $18, $0, 0x0000 # cor local
 
-	# INÍCIO DO TOPO DA CABEÇA
+	# IN�?CIO DO TOPO DA CABEÇA
 	sw $18, 16($17)
 	sw $18, 528($17)
 	sw $18, 532($17)
@@ -281,7 +281,7 @@ desenharMordecai:
 	ori $18, $18, 0xff 
 	
 	#### A PARTIR DAQUI É A COLORAÇÃO DO MORDECAI ####
-	# INÍCIO DO TOPO DA CABEÇA
+	# IN�?CIO DO TOPO DA CABEÇA
 	# DAQUI PARA BAIXO TEM UMA REPETIÇÃO DE SOMAS
 	sw $18, 1556($17) # Lateral interna esquerda
 	sw $18, 1560($17)
@@ -706,7 +706,7 @@ piscarOlhosMordecai:
 
 	sw $18, 4656($17) # Lateral interna do olho direito
 	sw $18, 4660($17)
-	addi $5, $0, 10000
+	addi $5, $0, 100000
 	jal gastarTempo
 		
 	# ABRE
@@ -725,7 +725,7 @@ piscarOlhosMordecai:
 	ori $18, $0, 0x0000 # Preto	
 	sw $18, 4648($17)
 	sw $18, 4660($17)
-	addi $5, $0, 950000	
+	addi $5, $0, 100000	
 	jal gastarTempo
 	
 	jr $19
@@ -822,7 +822,7 @@ puloDoMordecai:
 	jr $19
 	
 ###################################################	
-# ===== ROTINA PARA RENDERIZAR CENÁRIO ATRAS DO MORDECAI =====
+# ===== ROTINA PARA RENDERIZAR CEN�?RIO ATRAS DO MORDECAI =====
 # Entrada:
 #	$4: endereço
 # Usa:
