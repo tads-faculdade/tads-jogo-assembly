@@ -5,7 +5,7 @@
 # 1d2e97 # AZUL MARINHO
 # 847e87 # CINZA
 
-# CORES DO CEN�?RIO
+# CORES DO CEN�?RIO
 # 7aacdd -> Azul escuro (Céu)
 # a6d9f9 -> Azul levemente mais claro (Céu intermédio entre claro e escuro)
 # d1eeff -> Azul claro (Céu mais claro)
@@ -80,6 +80,17 @@ desenharFundo:
 	jal fundo4
 	jal fundo5
 	jal fundo6
+	
+	#addi $4, $4, 22004
+	#addi $5, $0, 12
+	#addi $6, $0, 512
+	#li $7, 0x864c41	# marrom
+	#ori $7, $0, 0x864c 
+	#sll $7, $7, 8
+	#ori $7, $7, 0x41
+	
+	#jal desenharQuadrado
+	
 	jr $19
 
 fundo1:	# DESENHA O AZUL ESCURO
@@ -173,6 +184,49 @@ forFundo6:
 endForFundo6:
 	jr $31
 
+##########################################
+# desenharQuadrado
+# Desenha um quadrado/retângulo
+#
+# Entradas:
+# 	$4 - endereço do primeiro pixel (canto superior esquerdo)
+# 	$5 - altura
+# 	$6 - largura
+#	$7 - cor (32 bits)
+#
+# Usa:
+#   $8, $9, $10, $11
+##########################################
+desenharQuadrado:
+    	add $8, $0, $4     # $8 = endereço linha atual
+    	add $9, $0, $5     # $9 = contador de linhas (altura)
+
+forQuadrado:
+    	beq  $9, $0, endForQuadrado	# se altura = 0 → fim
+
+    	# reset largura
+    	add $10, $0, $6             	# $10 = contador de colunas (largura)
+    	add $11, $0, $8             	# $11 = endereço do pixel da coluna atual
+
+forLinha:
+    	beq  $10, $0, endForLinha
+
+    	sw $7, 0($11)               	# desenha pixel (cor)
+    	sw $7, 32768($11)
+    	addi $11, $11, 4             	# vai 1 pixel para a direita
+    	
+    	addi $10, $10, -1
+    	j forLinha
+
+endForLinha:
+    	addi $8, $8, 512            	# desce 1 linha
+    	addi $9, $9, -1
+    	j forQuadrado
+
+endForQuadrado:
+    	jr $31
+
+
 ############################################
 # === Rotina para desenhar o Mordecai ===  
 # Entradas:                                	 				
@@ -189,7 +243,7 @@ desenharMordecai:
 	add $17, $0, $4 # endereço local dos pixels
 	ori $18, $0, 0x0000 # cor local
 
-	# IN�?CIO DO TOPO DA CABEÇA
+	# IN�?CIO DO TOPO DA CABEÇA
 	sw $18, 16($17)
 	sw $18, 528($17)
 	sw $18, 532($17)
@@ -281,7 +335,7 @@ desenharMordecai:
 	ori $18, $18, 0xff 
 	
 	#### A PARTIR DAQUI É A COLORAÇÃO DO MORDECAI ####
-	# IN�?CIO DO TOPO DA CABEÇA
+	# IN�?CIO DO TOPO DA CABEÇA
 	# DAQUI PARA BAIXO TEM UMA REPETIÇÃO DE SOMAS
 	sw $18, 1556($17) # Lateral interna esquerda
 	sw $18, 1560($17)
@@ -822,7 +876,7 @@ puloDoMordecai:
 	jr $19
 	
 ###################################################	
-# ===== ROTINA PARA RENDERIZAR CEN�?RIO ATRAS DO MORDECAI =====
+# ===== ROTINA PARA RENDERIZAR CEN�?RIO ATRAS DO MORDECAI =====
 # Entrada:
 #	$4: endereço
 # Usa:
