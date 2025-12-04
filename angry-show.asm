@@ -74,115 +74,62 @@ fim:
 ##########################################
 desenharFundo:
 	add $19, $0, $31
-	jal fundo1
-	jal fundo2
-	jal fundo3
-	jal fundo4
-	jal fundo5
-	jal fundo6
+
+	addi $4, $4, 0		# posi inicial
+	addi $5, $0, 15		# altura
+	addi $6, $0, 128	# largura
+	# li $7, 0x7bacde
+	ori $7, $0, 0x7bac
+	sll $7, $7, 8
+	ori $7, $7, 0xde
+	jal desenharQuadrado
 	
-	#addi $4, $4, 22004
-	#addi $5, $0, 12
-	#addi $6, $0, 512
-	#li $7, 0x864c41	# marrom
-	#ori $7, $0, 0x864c 
-	#sll $7, $7, 8
-	#ori $7, $7, 0x41
+	addi $4, $4, 7680	# posi inicial
+	addi $5, $0, 7		# altura
+	addi $6, $0, 128	# largura
+	#li $7, 0xa5d9f7
+	ori $7, $0, 0xa5d9
+	sll $7, $7, 8
+	ori $7, $7, 0xf7
+	jal desenharQuadrado
 	
-	#jal desenharQuadrado
+	addi $4, $4, 3584	# posi inicial
+	addi $5, $0, 30 	# altura
+	addi $6, $0, 128	# largura
+	#li $7, 0xd1eeff
+	ori $7, $0, 0xd1ee
+	sll $7, $7, 8
+	ori $7, $7, 0xff
+	jal desenharQuadrado
+	
+	addi $4, $4, 15360	# posi inicial
+	addi $5, $0, 1		# altura
+	addi $6, $0, 128	# largura
+	#li $7, 0x67e60f
+	ori $7, $0, 0x67e6
+	sll $7, $7, 8
+	ori $7, $7, 0x0f
+	jal desenharQuadrado
+	
+	addi $4, $4, 512	# posi inicial
+	addi $5, $0, 2		# altura
+	addi $6, $0, 128	# largura
+	#li $7, 0x35c527
+	ori $7, $0, 0x35c5
+	sll $7, $7, 8
+	ori $7, $7, 0x27
+	jal desenharQuadrado
+	
+	addi $4, $4, 1024	# posi inicial
+	addi $5, $0, 9		# altura
+	addi $6, $0, 128	# largura
+	#li $7, 0x3f3f74
+	ori $7, $0, 0x3f3f
+	sll $7, $7, 8
+	ori $7, $7, 0x74
+	jal desenharQuadrado
 	
 	jr $19
-
-fundo1:	# DESENHA O AZUL ESCURO
-	addi $16, $0, 2048 # i
-	add $17, $0, $4 # endereço local
-	ori $18, $0, 0x007aac # cor local
-	sll $18, $18, 8
-	ori $18, $18, 0xdd
-forFundo1:
-	beq $16, $0, endForFundo1
-	sw $18, 0($17)
-	sw $18, 32768($17)
-	addi $17, $17, 4 # endereço local + 4
-	addi $16, $16, -1 # i-1
-	j forFundo1
-endForFundo1:
-	jr $31
-	
-fundo2: # DESENHA O AZUL ESCURO 2
-	addi $16, $0, 640 # i
-	ori $18, $0, 0xa6d9 # cor local
-	sll $18, $18, 8
-	ori $18, $18, 0xf9
-forFundo2:
-	beq $16, $0, endForFundo2
-	sw $18, 0($17)
-	sw $18, 32768($17)
-	addi $17, $17, 4
-	addi $16, $16, -1
-	j forFundo2
-endForFundo2:
-	jr $31
-
-fundo3: # DESENHA O AZUL CLARO
-	addi $16, $0, 3584 # i
-	ori $18, $0, 0xd1ee # cor local
-	sll $18, $18, 8
-	ori $18, $18, 0xff
-forFundo3:
-	beq $16, $0, endForFundo3
-	sw $18, 0($17)
-	sw $18, 32768($17)
-	addi $17, $17, 4
-	addi $16, $16, -1
-	j forFundo3
-endForFundo3:
-	jr $31
-
-fundo4: # DESENHA O VERDE
-	addi $16, $0, 256 # i
-	ori $18, $0, 0x6bbd # cor local
-	sll $18, $18, 8
-	ori $18, $18, 0x2f
-forFundo4:
-	beq $16, $0, endForFundo4
-	sw $18, 0($17)
-	sw $18, 32768($17)
-	addi $17, $17, 4
-	addi $16, $16, -1
-	j forFundo4
-endForFundo4:
-	jr $31
-
-fundo5: # DESENHA O VERDE ESCURO
-	addi $16, $0, 512 # i
-	ori $18, $0, 0x4c94 # cor local
-	sll $18, $18, 8
-	ori $18, $18, 0x1a
-forFundo5:
-	beq $16, $0, endForFundo5
-	sw $18, 0($17)
-	sw $18, 32768($17)
-	addi $17, $17, 4
-	addi $16, $16, -1
-	j forFundo5
-endForFundo5:
-	jr $31
-
-fundo6: # DESENHA O AZUL EMBAIXO DO VERDE ESCURO
-	addi $16, $0, 1152 # i
-	ori $18, $0, 0x3e3e # cor local
-	sll $18, $18, 8
-	ori $18, $18, 0x73
-forFundo6:
-	beq $16, $0, endForFundo6
-	sw $18, 0($17)
-	sw $18, 32768($17)
-	addi $17, $17, 4
-	addi $16, $16, -1
-	j forFundo6
-endForFundo6:
-	jr $31
 
 ##########################################
 # desenharQuadrado
@@ -225,7 +172,6 @@ endForLinha:
 
 endForQuadrado:
     	jr $31
-
 
 ############################################
 # === Rotina para desenhar o Mordecai ===  
@@ -884,11 +830,11 @@ puloDoMordecai:
 #	$18, $19: loop
 ##############################################################
 desenharParteCenarioMordecai:
-	add $17, $0, $4			
-	addi $18, $0, 16
+	add $17, $0, $4	# Posição inicial		
+	addi $18, $0, 16 # Altura
 forDesenharParteCenarioI:
 	beq $18, $0, endForDesenharParteCenarioI
-	addi $20, $0, 20
+	addi $20, $0, 20 # Largura
 forDesenharParteCenarioJ:
 	beq $20, $0, endForDesenharParteCenarioJ
 	lw $16, 32768($17)
