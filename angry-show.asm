@@ -871,11 +871,15 @@ moverMordecai:
 	addi $17, $0, 'w'
 	beq $16, $17, setaCima
 setaFrente:
+	addi $4, $4, -8
 	jal apagarSeta
+	addi $4, $4, 8
 	jal desenharSetaParaFrente
 	j fimMoverMordecai
 setaCima:
+	addi $4, $4, -8
 	jal apagarSeta
+	addi $4, $4, 8
 	jal desenharSetaParaCima
 	j fimMoverMordecai
 fimMoverMordecai:
