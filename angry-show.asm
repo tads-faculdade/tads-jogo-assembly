@@ -33,25 +33,25 @@ main:
 	jal desenharFundo
 	
 	lui $4, 0x1001
-	addi $4, $4, 20940 # Posição inicial do porco
+	addi $4, $4, 20940 # posicao inicial do porco
 	jal desenharPorco
 	
 	lui $4, 0x1001
-	addi $4, $4, 19456 # Posição inicial do Mordecai
+	addi $4, $4, 19456 # posicao inicial do Mordecai
 	jal desenharMordecai
 
 lacoInfinito:	
 	lui $4, 0x1001
-	addi $4, $4, 19456 # Posição inicial do Mordecai	
+	addi $4, $4, 19456 # posicao inicial do Mordecai	
 	jal piscarOlhosMordecai
 	jal puloDoMordecai
 	
 	lui $4, 0x1001
-	addi $4, $4, 18600 # Posição de referência para desenhar a seta
-	jal moverMordecai
+	addi $4, $4, 18600 # posicao de referencia para desenhar a seta
+	jal controle
 	
 	lui $4, 0x1001
-	addi $4, $4, 20940 # Posição inicial do porco
+	addi $4, $4, 20940 # posicao inicial do porco
 	jal piscarOlhosPorco
 
 	j lacoInfinito
@@ -81,7 +81,6 @@ desenharFundo:
 	addi $4, $4, 0		# posi inicial
 	addi $5, $0, 15		# altura
 	addi $6, $0, 128	# largura
-	# li $7, 0x7bacde
 	ori $7, $0, 0x7bac
 	sll $7, $7, 8
 	ori $7, $7, 0xde
@@ -90,7 +89,6 @@ desenharFundo:
 	addi $4, $4, 7680	# posi inicial
 	addi $5, $0, 7		# altura
 	addi $6, $0, 128	# largura
-	#li $7, 0xa5d9f7
 	ori $7, $0, 0xa5d9
 	sll $7, $7, 8
 	ori $7, $7, 0xf7
@@ -99,7 +97,6 @@ desenharFundo:
 	addi $4, $4, 3584	# posi inicial
 	addi $5, $0, 30 	# altura
 	addi $6, $0, 128	# largura
-	#li $7, 0xd1eeff
 	ori $7, $0, 0xd1ee
 	sll $7, $7, 8
 	ori $7, $7, 0xff
@@ -108,7 +105,6 @@ desenharFundo:
 	addi $4, $4, 15360	# posi inicial
 	addi $5, $0, 1		# altura
 	addi $6, $0, 128	# largura
-	#li $7, 0x67e60f
 	ori $7, $0, 0x67e6
 	sll $7, $7, 8
 	ori $7, $7, 0x0f
@@ -117,7 +113,6 @@ desenharFundo:
 	addi $4, $4, 512	# posi inicial
 	addi $5, $0, 2		# altura
 	addi $6, $0, 128	# largura
-	#li $7, 0x35c527
 	ori $7, $0, 0x35c5
 	sll $7, $7, 8
 	ori $7, $7, 0x27
@@ -126,7 +121,6 @@ desenharFundo:
 	addi $4, $4, 1024	# posi inicial
 	addi $5, $0, 9		# altura
 	addi $6, $0, 128	# largura
-	#li $7, 0x3f3f74
 	ori $7, $0, 0x3f3f
 	sll $7, $7, 8
 	ori $7, $7, 0x74
@@ -797,20 +791,53 @@ piscarOlhosPorco:
 	
 	jr $19
 
-###################################################	
+###################################################
+# ===== ROTINA PARA PULAR O MORDECAI =====
+# Entrada:
+#	$4: posicao inicial do personagem
+# Usa (sem preservar):
+#	$16: enderecao dos pixels copiados do cenario
+#	$17: copia da posicao inicial
+#	$19: copia do endereco $31
+###################################################
+puloDoMordecai:			
+	add $19, $0, $31 
+	add $17, $0, $4	
+	
+	addi $5, $0, 16
+	addi $6, $0, 20
+		
+	jal desenharParteCenarioMordecai
+	addi $4, $4, -1024
+	jal desenharMordecai
+	
+	addi $5, $0, 65000
+	jal gastarTempo
+	
+	addi $5, $0, 16
+	addi $6, $0, 20
+	jal desenharParteCenarioMordecai
+	addi $4, $4, 1024
+	jal desenharMordecai
+												
+	jr $19
+
+##############################################################	
 # ===== ROTINA PARA RENDERIZAR CENARIO ATRAS DO MORDECAI =====
 # Entrada:
-#	$4: endereço
+#	$4: posicao do mordecai
+#	$5: altura do quadrado
+#	$6: largura
 # Usa:
-#	$17: cópia do endereço
+#	$17: copia da posicao do mordecai
 #	$18, $19: loop
 ##############################################################
 desenharParteCenarioMordecai:
 	add $17, $0, $4			
-	addi $18, $0, 16
+	add $18, $0, $5 # Altura
 forDesenharParteCenarioI:
 	beq $18, $0, endForDesenharParteCenarioI
-	addi $20, $0, 20
+	add $20, $0, $6 # Largura
 forDesenharParteCenarioJ:
 	beq $20, $0, endForDesenharParteCenarioJ
 	lw $16, 32768($17)
@@ -825,46 +852,21 @@ endForDesenharParteCenarioJ:
 endForDesenharParteCenarioI:
 	jr $31
 
-###################################################
-# ===== ROTINA PARA PULAR O MORDECAI =====
-# Entrada:
-#	$4: posicao inicial do personagem
-# Usa (sem preservar):
-#	$16: endereço dos pixels copiados do cenário
-#	$17: cópia da posição inicial
-#	$19: cópia do endereço $31
-###################################################
-puloDoMordecai:			
-	add $19, $0, $31 
-	add $17, $0, $4	
-		
-	jal desenharParteCenarioMordecai
-	addi $4, $4, -1024
-	jal desenharMordecai
-	
-	addi $5, $0, 65000
-	jal gastarTempo
-	
-	jal desenharParteCenarioMordecai
-	addi $4, $4, 1024
-	jal desenharMordecai
-												
-	jr $19
-
 ###################################################	
-# ===== ROTINA PARA MOVER O MORDECAI =====
+# ===== ROTINA PARA CONTROLAR OS COMANDOS DO JOGO =====
 # Entrada:
-#	$4: sinal do pressionamento de tecla
+#	$4: endereco da seta
 # Usa:
 #	$16: tecla pressionada
-#	$17: tecla para verificação
-#	$19: cópia de $31
+#	$17: tecla para verificacao
+#	$19: copia de $31
 ####################################################
-moverMordecai:
+controle:
 	add $19, $0, $31
-	lui $18, 0xffff
+	lui $18, 0xffff # Pode usar em outras funcoes
 	lw $16, 0($18)
-	beq $16, $0, fimMoverMordecai # $16=0 --> nenhuma tecla pressionada
+	beq $16, $0, fimControle # $16=0 --> nenhuma tecla pressionada
+	
 	lw $16, 4($18) 
 	addi $17, $0, 'd'
 	beq $16, $17, setaFrente
@@ -874,15 +876,22 @@ setaFrente:
 	addi $4, $4, -8
 	jal apagarSeta
 	addi $4, $4, 8
+	addi $5, $0, 
 	jal desenharSetaParaFrente
-	j fimMoverMordecai
+	# TESTE ==========================
+	#addi $4, $0, 'd'
+	#lui $5, 0x1001
+	#addi $5, $5, 19456 # posicao inicial do Mordecai
+	# FIM TESTE ==========================
+	#jal moverMordecai
+	j fimControle
 setaCima:
 	addi $4, $4, -8
 	jal apagarSeta
 	addi $4, $4, 8
 	jal desenharSetaParaCima
-	j fimMoverMordecai
-fimMoverMordecai:
+	j fimControle
+fimControle:
 	jr $19
 
 ###################################################	
@@ -948,7 +957,7 @@ desenharSetaParaCima:
 ###################################################	
 # ===== ROTINA PARA APAGAR UMA SETA =====
 # Entrada:
-#	$4: posição da seta
+#	$4: posicao da seta
 # Usa:
 #	$16, $17: loop	
 #	$18: cor
@@ -975,6 +984,21 @@ endForApagarSetaJ:
 	j forApagarSetaI
 endForApagarSetaI:
 	jr $31
+	
+###################################################	
+# ===== ROTINA PARA MOVER O MORDECAI =====
+# Entrada:
+#	$4: direcao do movimento
+#	$5: posicao do mordecai
+# Usa:
+#	$16, $17: loop	
+#	$18: cor
+# 	$19: copia de $31
+####################################################
+moverMordecai:
+	
+
+	jr $19
 
 ###################################################	
 # ===== ROTINA PARA PASSAR O TEMPO =====
