@@ -40,7 +40,7 @@ main:
 	addi $4, $4, 19456 # posicao inicial do Mordecai
 	jal desenharMordecai
 
-lacoInfinito:	
+lacoInfinito:		
 	lui $4, 0x1001
 	addi $4, $4, 19456 # posicao inicial do Mordecai	
 	jal piscarOlhosMordecai
@@ -55,7 +55,7 @@ lacoInfinito:
 	jal piscarOlhosPorco
 
 	j lacoInfinito
-fim:	
+fimJogo:	
 	jal musicaParte1
 	jal musicaParte2	
 	jal musicaParte3
@@ -173,9 +173,7 @@ endForQuadrado:
 ############################################
 # === Rotina para desenhar o Mordecai ===  
 # Entradas:                                	 				
-#	$4: endereço de início do desenho  
-# Saída:                                   
-#        void                              
+#	$4: endereço de início do desenho                                
 # Usa (sem preservar):                     
 #	$17: endereço local dos pixels     
 #	$18: cor local                     
@@ -369,7 +367,7 @@ desenharMordecai:
 	sw $18, 5692($17)
 	sw $18, 5696($17)
 	sw $18, 5700($17)
-	sw $18, 5704($17)
+	sw $18, 5704($17) # PONTA DA BOCA
 	sw $18, 6188($17) # Lateral interna da boca
 	sw $18, 6192($17)
 	sw $18, 6196($17)
@@ -805,9 +803,9 @@ puloDoMordecai:
 	add $17, $0, $4	
 	
 	addi $5, $0, 16
-	addi $6, $0, 20
-		
+	addi $6, $0, 20		
 	jal desenharParteCenarioMordecai
+	
 	addi $4, $4, -1024
 	jal desenharMordecai
 	
@@ -817,6 +815,7 @@ puloDoMordecai:
 	addi $5, $0, 16
 	addi $6, $0, 20
 	jal desenharParteCenarioMordecai
+	
 	addi $4, $4, 1024
 	jal desenharMordecai
 												
@@ -876,14 +875,16 @@ setaFrente:
 	addi $4, $4, -8
 	jal apagarSeta
 	addi $4, $4, 8
-	addi $5, $0, 
+	
 	jal desenharSetaParaFrente
+	addi $5, $0, 5000
+	jal gastarTempo
 	# TESTE ==========================
-	#addi $4, $0, 'd'
-	#lui $5, 0x1001
-	#addi $5, $5, 19456 # posicao inicial do Mordecai
+	addi $5, $0, 'd'
+	lui $4, 0x1001 # posicao inicial do Mordecai
+	addi $4, $4, 19456 # posicao inicial do Mordecai
+	jal moverMordecai
 	# FIM TESTE ==========================
-	#jal moverMordecai
 	j fimControle
 setaCima:
 	addi $4, $4, -8
@@ -895,12 +896,56 @@ fimControle:
 	jr $19
 
 ###################################################	
+# ===== ROTINA PARA MOVER O MORDECAI =====
+# Entrada:
+#	$4: direcao do movimento
+#	$5: posicao do mordecai
+# Usa:
+#	$16: valor para comparar a tecla de $4
+#	$17: copia de $4
+#	$24: loop
+# 	$21: copia de $31
+# OBS.: NÃO USAR O REGISTRADOR $19
+####################################################
+moverMordecai:
+	add $21, $0, $31
+	add $17, $0, $4 # POSICAO MORDECAI
+	
+	ori $23, $0, 0x72ff 
+	sll $23, $23, 8
+	ori $23, $23, 0x38 # Cor local: Verde
+	
+	addi $16, $0, 'd' 
+	beq $5, $16, moverMordecaiFrente # PODE SUBSTITUIR O VALOR DE $5 DEPOIS DE ENTRAR NUMA FUNCAO
+moverMordecaiFrente:
+	addi $24, $0, 100 # 93 é para chegar no um pixel antes do mordecai encostar no porco
+forMoverMordecaiFrente:	
+	beq $24, $0, fimForMoverMordecai
+	addi $5, $0, 16 # Altura
+	addi $6, $0, 20 # Largura
+	jal desenharParteCenarioMordecai	
+	
+	addi $4, $4, 4
+	jal desenharMordecai
+	
+	lw $16, 5716($17)
+	beq $23, $16, ganhouFimJogo
+
+	addi $24, $24, -1
+	j forMoverMordecaiFrente
+fimForMoverMordecai:	
+	j fimMoverMordecai
+ganhouFimJogo:
+	j fimJogo
+fimMoverMordecai:
+	jr $21
+
+###################################################	
 # ===== ROTINA PARA DESENHAR UMA SETA PARA FRENTE =====
 # Entrada:
 #	$5: posição da seta
 # Usa:
 #	$18: cor
-#	$21: cópia de $31 
 ####################################################
 desenharSetaParaFrente:
 	ori $18, $0, 0x0000 # preto
@@ -929,7 +974,6 @@ desenharSetaParaFrente:
 #	$5: posição da seta
 # Usa:
 #	$18: cor
-#	$21: cópia de $31 
 ####################################################
 desenharSetaParaCima:
 	ori $18, $0, 0x0000 # preto
@@ -985,20 +1029,6 @@ endForApagarSetaJ:
 endForApagarSetaI:
 	jr $31
 	
-###################################################	
-# ===== ROTINA PARA MOVER O MORDECAI =====
-# Entrada:
-#	$4: direcao do movimento
-#	$5: posicao do mordecai
-# Usa:
-#	$16, $17: loop	
-#	$18: cor
-# 	$19: copia de $31
-####################################################
-moverMordecai:
-	
-
-	jr $19
 
 ###################################################	
 # ===== ROTINA PARA PASSAR O TEMPO =====
@@ -1011,7 +1041,6 @@ gastarTempo:
 	add $25, $0, $5
 forGastarTempo:
 	beq $25, $0, endForGastarTempo
-	nop
 	addi $25, $25, -1
 	j forGastarTempo
 endForGastarTempo:
