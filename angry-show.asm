@@ -1,48 +1,22 @@
-# CORES DO MORDECAI
-# 000000 # PRETO
-# 639bff # AZUL CLARO
-# ffffff # BRANCO
-# 1d2e97 # AZUL MARINHO
-# 847e87 # CINZA
-
-# CORES DO CEN�?RIO
-# 7aacdd -> Azul escuro (Céu)
-# a6d9f9 -> Azul levemente mais claro (Céu intermédio entre claro e escuro)
-# d1eeff -> Azul claro (Céu mais claro)
-# 4c941a - Verde escuro
-# 6bbd2f - Verde claro
-# 3e3e73 -> Parte debaixo do chão (Azul)
-
-# CORES DAS NUVENS
-# ddeeff -> Branco azulado
-# cde3f5 -> Branco mais azulado ainda
-
-# CORES DO MATO
-# 035a01 -> Verde escuro
-# 67e611 -> Verde claro
-# 35c924 -> Verde levemente mais claro
-# 02001b -> Contorno
-
-# CORES DO PORCO
-# 72ff38 -> Pele do porco
-# 00b600 -> Nariz do porco 
-
 .text
 main:		
 	lui $4, 0x1001
 	jal desenharFundo
+
+	jal desenharBaseMordecai
+	jal desenharBasePorco
 	
 	lui $4, 0x1001
-	addi $4, $4, 20940 # posicao inicial do porco
+	addi $4, $4, 12748 # posicao inicial do porco
 	jal desenharPorco
 	
 	lui $4, 0x1001
-	addi $4, $4, 19456 # posicao inicial do Mordecai
+	addi $4, $4, 11264 # posicao inicial do Mordecai
 	jal desenharMordecai
 
 lacoInfinito:		
 	lui $4, 0x1001
-	addi $4, $4, 19456 # posicao inicial do Mordecai	
+	addi $4, $4, 11264 # posicao inicial do Mordecaii	
 	jal piscarOlhosMordecai
 	jal puloDoMordecai
 	
@@ -51,7 +25,7 @@ lacoInfinito:
 	jal controle
 	
 	lui $4, 0x1001
-	addi $4, $4, 20940 # posicao inicial do porco
+	addi $4, $4, 12748 # posicao inicial do porco
 	jal piscarOlhosPorco
 
 	j lacoInfinito
@@ -64,10 +38,108 @@ fimJogo:
 	syscall
 
 ##########################################
+# ===== Rotina para desenhar estilingue =====                                               
+# Usa (sem preservar):                   
+#	$16: alcance do laço             
+#	$17: endereço local              
+#	$18: cor local                        
+##########################################
+desenharBaseMordecai:
+	add $19, $0, $31
+	
+	lui $4, 0x1001
+	addi $4, $4, 8192	# posi inicial
+	addi $4, $4, 8192
+	addi $4, $4, 2048
+	addi $4, $4, 1024
+	addi $4, $4, 448
+	addi $5, $0, 4		# altura
+	addi $6, $0, 15		# largura
+	ori $7, $0, 0x8951
+	sll $7, $7, 8
+	ori $7, $7, 0x29
+	jal desenharQuadrado
+	
+	lui $4, 0x1001
+	addi $4, $4, 8192	# posi inicial
+	addi $4, $4, 8192
+	addi $4, $4, 2048
+	addi $4, $4, 1024
+	addi $4, $4, 448
+	addi $5, $0, 15		# altura
+	addi $6, $0, 4		# largura
+	ori $7, $0, 0x8951
+	sll $7, $7, 8
+	ori $7, $7, 0x29
+	jal desenharQuadrado
+
+	lui $4, 0x1001
+	addi $4, $4, 8240	# posi inicial
+	addi $4, $4, 8192
+	addi $4, $4, 2048
+	addi $4, $4, 1024
+	addi $4, $4, 448
+	addi $5, $0, 15		# altura
+	addi $6, $0, 4		# largura
+	ori $7, $0, 0x8951
+	sll $7, $7, 8
+	ori $7, $7, 0x29
+	jal desenharQuadrado
+	
+	jr $19
+
+##########################################
+# ===== Rotina para desenhar estilingue =====                                               
+# Usa (sem preservar):                   
+#	$16: alcance do laço             
+#	$17: endereço local              
+#	$18: cor local                        
+##########################################
+desenharBasePorco:
+	add $19, $0, $31
+	
+	lui $4, 0x1001
+	addi $4, $4, 8192	# posi inicial
+	addi $4, $4, 8192
+	addi $4, $4, 2048
+	addi $4, $4, 1024
+	addi $5, $0, 4		# altura
+	addi $6, $0, 15		# largura
+	ori $7, $0, 0x8951
+	sll $7, $7, 8
+	ori $7, $7, 0x29
+	jal desenharQuadrado
+	
+	lui $4, 0x1001
+	addi $4, $4, 8192	# posi inicial
+	addi $4, $4, 8192
+	addi $4, $4, 2048
+	addi $4, $4, 1024
+	addi $5, $0, 15		# altura
+	addi $6, $0, 4		# largura
+	ori $7, $0, 0x8951
+	sll $7, $7, 8
+	ori $7, $7, 0x29
+	jal desenharQuadrado
+
+	lui $4, 0x1001
+	addi $4, $4, 8240	# posi inicial
+	addi $4, $4, 8192
+	addi $4, $4, 2048
+	addi $4, $4, 1024
+	addi $5, $0, 15		# altura
+	addi $6, $0, 4		# largura
+	ori $7, $0, 0x8951
+	sll $7, $7, 8
+	ori $7, $7, 0x29
+	jal desenharQuadrado
+	
+	jr $19
+
+##########################################
 # ===== Rotina para desenhar fundo ===== 
 # Entradas:                              	 				
-#	$4: endereço                     
-# Saída: void                            
+#	$4: endereço                                                
 # Usa (sem preservar):                   
 #	$16: alcance do laço             
 #	$17: endereço local              
@@ -872,19 +944,10 @@ controle:
 	addi $17, $0, 'w'
 	beq $16, $17, setaCima
 setaFrente:
-	addi $4, $4, -8
-	jal apagarSeta
-	addi $4, $4, 8
-	
-	jal desenharSetaParaFrente
-	addi $5, $0, 5000
-	jal gastarTempo
-	# TESTE ==========================
 	addi $5, $0, 'd'
 	lui $4, 0x1001 # posicao inicial do Mordecai
-	addi $4, $4, 19456 # posicao inicial do Mordecai
+	addi $4, $4, 11264 # posicao inicial do Mordecaii
 	jal moverMordecai
-	# FIM TESTE ==========================
 	j fimControle
 setaCima:
 	addi $4, $4, -8
