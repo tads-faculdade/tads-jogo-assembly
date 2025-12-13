@@ -15,16 +15,16 @@ main:
 	jal desenharMordecai
 	jal desenharBaseMordecai2
 
-lacoInfinito:		
+lacoInfinito:	
+	lui $4, 0x1001
+	addi $4, $4, 18600 # posicao de referencia para desenhar a seta
+	jal controle
+		
 	lui $4, 0x1001
 	addi $4, $4, 11264 # posicao inicial do Mordecaii	
 	jal piscarOlhosMordecai
 	jal puloDoMordecai
 	jal desenharBaseMordecai2
-	
-	lui $4, 0x1001
-	addi $4, $4, 18600 # posicao de referencia para desenhar a seta
-	jal controle
 	
 	lui $4, 0x1001
 	addi $4, $4, 12748 # posicao inicial do porco
@@ -821,7 +821,7 @@ piscarOlhosMordecai:
 
 	sw $18, 4656($17) # Lateral interna do olho direito
 	sw $18, 4660($17)
-	addi $5, $0, 100000
+	addi $5, $0, 50000
 	jal gastarTempo
 		
 	# ABRE
@@ -840,7 +840,7 @@ piscarOlhosMordecai:
 	ori $18, $0, 0x0000 # Preto	
 	sw $18, 4648($17)
 	sw $18, 4660($17)
-	addi $5, $0, 600000	
+	addi $5, $0, 90000	
 	jal gastarTempo
 	
 	jr $19
@@ -929,7 +929,7 @@ puloDoMordecai:
 	addi $4, $4, -1024
 	jal desenharMordecai
 	
-	addi $5, $0, 45000
+	addi $5, $0, 40000
 	jal gastarTempo
 	
 	addi $5, $0, 16
@@ -1073,7 +1073,7 @@ forMoverMordecaiEmAlgumaDirecaoSubindo:
 	add $4, $4, $7
 	jal desenharMordecai
 	
-	addi $5, $0, 20000
+	addi $5, $0, 10000
 	jal gastarTempo
 
 	addi $24, $24, -1
@@ -1091,7 +1091,7 @@ forMoverMordecaiEmAlgumaDirecaoDescendo:
 	add $4, $4, $7
 	jal desenharMordecai
 	
-	addi $5, $0, 20000
+	addi $5, $0, 9500
 	jal gastarTempo
 	
 	# Verifica se mordecai encontrou o porco
