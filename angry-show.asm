@@ -948,6 +948,7 @@ puloDoMordecai:
 #	$5: altura do quadrado
 #	$6: largura
 # Usa:
+#	$15, $16, 
 #	$17: copia da posicao do mordecai
 #	$18, $19: loop
 ##############################################################
@@ -965,8 +966,10 @@ forDesenharParteCenarioJ:
 	addi $20, $20, -1 
 	j forDesenharParteCenarioJ
 endForDesenharParteCenarioJ:
-	
-	addi $17, $17, 432
+	mul $16, $6, 4		# Calcula a quantidade de pixels usadas
+	addi $15, $0, 512	
+	sub $15, $15, $16	# Calcula quanto falta para chegar em 512
+	add $17, $17, $15	# Soma a diferença que falta para completar uma linha
 	addi $18, $18, -1	
 	j forDesenharParteCenarioI
 endForDesenharParteCenarioI:
@@ -1015,8 +1018,6 @@ cima:
 #	$5: posicao do mordecai
 # Usa:
 #	$16: valor para comparar a tecla de $4
-#	$17: copia de $4
-#	$24: loop
 # 	$21: copia de $31
 # OBS.: NÃO USAR O REGISTRADOR $19
 ####################################################
@@ -1037,8 +1038,8 @@ mordecaiFrente:
 	j fimMoverMordecai
 mordecaiCima:
 	addi $6, $0, 10		# Altura do voo
-	addi $7, $0, 512		# Deslocamento 
-	addi $8, $0, 8		# Desvio
+	addi $7, $0, 512		# Deslocamento vertical 
+	addi $8, $0, 8		# Deslocamento horizontal
 	jal moverMordecaiEmAlgumaDirecao
 	j fimMoverMordecai
 	
@@ -1047,24 +1048,26 @@ mordecaiCima:
 # ===== ROTINA PARA MOVER O MORDECAI EM ALGUMA DIREÇÃO =====
 # Entrada:
 #	$4: direcao do movimento
-#	$5: posicao do mordecai
+#	$6: altura do voo
+#	$7: deslocamento vertical
+#	$8: deslocamento horizontal
 # Usa:
-#	$16: valor para comparar a tecla de $4
-#	$17: copia de $4
 #	$24: loop
-# 	$21: copia de $31
-# OBS.: NÃO USAR O REGISTRADOR $19
+#	$22: cópia de $7
+# OBS.: 
+#	NÃO USAR O REGISTRADOR $19
+#	NÃO USAR O REGISTRADOR $21
 ####################################################	
 moverMordecaiEmAlgumaDirecao:	
 	add $22, $0, $7
-	add $24, $0, $6 # 93 é para chegar no um pixel antes do mordecai encostar no por
+	add $24, $0, $6
 	sub $7, $0, $7
 	addi $7, $7, 12
 forMoverMordecaiEmAlgumaDirecaoSubindo:	
 	beq $24, $0, fimForMoverMordecaiEmAlgumaDirecaoSubindo
 	
 	addi $5, $0, 16 # Altura
-	addi $6, $0, 20 # Largura
+	addi $6, $0, 18 # Largura
 	jal desenharParteCenarioMordecai	
 	
 	add $4, $4, $7
@@ -1082,7 +1085,7 @@ fimForMoverMordecaiEmAlgumaDirecaoSubindo:
 forMoverMordecaiEmAlgumaDirecaoDescendo:	
 	beq $24, $0, fimForMoverMordecaiEmAlgumaDirecaoDescendo
 	addi $5, $0, 16 # Altura
-	addi $6, $0, 20 # Largura
+	addi $6, $0, 19 # Largura
 	jal desenharParteCenarioMordecai	
 	
 	add $4, $4, $7
@@ -1091,12 +1094,14 @@ forMoverMordecaiEmAlgumaDirecaoDescendo:
 	addi $5, $0, 20000
 	jal gastarTempo
 	
+	# Verifica se mordecai encontrou o porco
 	ori $23, $0, 0x72ff 
 	sll $23, $23, 8
 	ori $23, $23, 0x38 # Cor local: Verde
 	lw $16, 5716($4)
 	beq $23, $16, ganhouFimJogo
 	
+	# Verifica se mordecai encontrou o chão
 	ori $23, $0, 0x3f3f 
 	sll $23, $23, 8
 	ori $23, $23, 0x74 # Cor local: Verde
