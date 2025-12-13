@@ -339,7 +339,7 @@ desenharMordecai:
 	sw $18, 7708($17)
 	sw $18, 7712($17)
 	sw $18, 7716($17)
-	sw $18, 7720($17)
+	sw $18, 7720($17) # Último pixel do mordecai
 	sw $18, 7212($17)
 	sw $18, 6704($17)
 	sw $18, 6708($17)
@@ -992,33 +992,26 @@ controle:
 	beq $16, $17, frente
 	addi $17, $0, 'w'
 	beq $16, $17, cima
-	addi $17, $0, 'e'
-	beq $16, $17, diagonal
 fimControle:
 	jr $19
+
 frente:
 	addi $5, $0, 'd'
 	lui $4, 0x1001 # posicao inicial do Mordecai
-	addi $4, $4, 11264 # posicao inicial do Mordecaii
+	addi $4, $4, 11264 # posicao inicial do Mordecai
 	jal moverMordecai
 	j fimControle
 cima:
 	addi $5, $0, 'w'
 	lui $4, 0x1001 # posicao inicial do Mordecai
-	addi $4, $4, 11264 # posicao inicial do Mordecaii
-	jal moverMordecai
-	j fimControle
-diagonal:
-	addi $5, $0, 'e'
-	lui $4, 0x1001 # posicao inicial do Mordecai
-	addi $4, $4, 11264 # posicao inicial do Mordecaii
+	addi $4, $4, 11264 # posicao inicial do Mordecai
 	jal moverMordecai
 	j fimControle
 
 ###################################################	
 # ===== ROTINA PARA MOVER O MORDECAI =====
 # Entrada:
-#	$4: direcao do movimento
+#	$4: sentido do movimento
 #	$5: posicao do mordecai
 # Usa:
 #	$16: valor para comparar a tecla de $4
@@ -1030,99 +1023,91 @@ diagonal:
 moverMordecai:
 	add $21, $0, $31	
 	addi $16, $0, 'd' 
-	beq $5, $16, moverMordecaiFrente # PODE SUBSTITUIR O VALOR DE $5 DEPOIS DE ENTRAR NUMA FUNCAO
+	beq $5, $16, mordecaiFrente # PODE SUBSTITUIR O VALOR DE $5 DEPOIS DE ENTRAR NUMA FUNCAO
 	addi $16, $0, 'w'
-	beq $5, $16, moverMordecaiCima
-	addi $16, $0, 'e'
-	beq $5, $16, moverMordecaiDiagonal
+	beq $5, $16, mordecaiCima
 fimMoverMordecai:
 	jr $21
+
+mordecaiFrente:
+	addi $6, $0, 17		# Altura do voo
+	addi $7, $0, 512		# Deslocamento
+	addi $8, $0, 12		# Desvio
+	jal moverMordecaiEmAlgumaDirecao
+	j fimMoverMordecai
+mordecaiCima:
+	addi $6, $0, 10		# Altura do voo
+	addi $7, $0, 512		# Deslocamento 
+	addi $8, $0, 8		# Desvio
+	jal moverMordecaiEmAlgumaDirecao
+	j fimMoverMordecai
 	
-# MORDECAI PARA FRENTE	
-moverMordecaiFrente:
+
+###################################################	
+# ===== ROTINA PARA MOVER O MORDECAI EM ALGUMA DIREÇÃO =====
+# Entrada:
+#	$4: direcao do movimento
+#	$5: posicao do mordecai
+# Usa:
+#	$16: valor para comparar a tecla de $4
+#	$17: copia de $4
+#	$24: loop
+# 	$21: copia de $31
+# OBS.: NÃO USAR O REGISTRADOR $19
+####################################################	
+moverMordecaiEmAlgumaDirecao:	
+	add $22, $0, $7
+	add $24, $0, $6 # 93 é para chegar no um pixel antes do mordecai encostar no por
+	sub $7, $0, $7
+	addi $7, $7, 12
+forMoverMordecaiEmAlgumaDirecaoSubindo:	
+	beq $24, $0, fimForMoverMordecaiEmAlgumaDirecaoSubindo
+	
+	addi $5, $0, 16 # Altura
+	addi $6, $0, 20 # Largura
+	jal desenharParteCenarioMordecai	
+	
+	add $4, $4, $7
+	jal desenharMordecai
+	
+	addi $5, $0, 20000
+	jal gastarTempo
+
+	addi $24, $24, -1
+	j forMoverMordecaiEmAlgumaDirecaoSubindo
+fimForMoverMordecaiEmAlgumaDirecaoSubindo:
+	addi $24, $0, 35
+	add $7, $0, $22
+	add $7, $7, $8
+forMoverMordecaiEmAlgumaDirecaoDescendo:	
+	beq $24, $0, fimForMoverMordecaiEmAlgumaDirecaoDescendo
+	addi $5, $0, 16 # Altura
+	addi $6, $0, 20 # Largura
+	jal desenharParteCenarioMordecai	
+	
+	add $4, $4, $7
+	jal desenharMordecai
+	
+	addi $5, $0, 20000
+	jal gastarTempo
+	
 	ori $23, $0, 0x72ff 
 	sll $23, $23, 8
 	ori $23, $23, 0x38 # Cor local: Verde
-	addi $24, $0, 94 # 93 é para chegar no um pixel antes do mordecai encostar no porco
-forMoverMordecaiFrente:	
-	beq $24, $0, fimForMoverMordecaiFrente
-	addi $5, $0, 16 # Altura
-	addi $6, $0, 20 # Largura
-	jal desenharParteCenarioMordecai	
-	
-	addi $4, $4, 4
-	jal desenharMordecai
-	
 	lw $16, 5716($4)
 	beq $23, $16, ganhouFimJogo
-
-	addi $24, $24, -1
-	j forMoverMordecaiFrente
-fimForMoverMordecaiFrente:	
-	j fimMoverMordecai
 	
-# MORDECAI PARA CIMA	
-moverMordecaiCima:
-	lui $23, 0x1001
-	addi $24, $0, 38 # 37 é para chegar no um pixel antes do mordecai sair da tela para cima
-forMoverMordecaiCima:	
-	beq $24, $0, fimForMoverMordecaiCima
-	addi $5, $0, 16 # Altura
-	addi $6, $0, 20 # Largura
-	jal desenharParteCenarioMordecai	
-	
-	addi $4, $4, -512
-	jal desenharMordecai
-	
-	addi $17, $4, 7680
-	slt $18, $17, $23
-	bne $18, $0, perdeuFimJogo
-
-	addi $24, $24, -1
-	j forMoverMordecaiCima	
-fimForMoverMordecaiCima:	
-	j fimMoverMordecai
-
-
-# MORDECAI PARA DIAGONAL			
-moverMordecaiDiagonal:
-	ori $23, $0, 0x72ff 
+	ori $23, $0, 0x3f3f 
 	sll $23, $23, 8
-	ori $23, $23, 0x38 # Cor local: Verde
-	addi $24, $0, 17 # 17 é o ponto para fazer o declínio
-forMoverMordecaiDiagonalCima:	
-	beq $24, $0, fimForMoverMordecaiDiagonalCima
-	addi $5, $0, 16 # Altura
-	addi $6, $0, 20 # Largura
-	jal desenharParteCenarioMordecai	
-	
-	addi $4, $4, -500
-	jal desenharMordecai
-	
-	lw $16, 5716($4)
-	beq $23, $16, ganhouFimJogo
+	ori $23, $23, 0x74 # Cor local: Verde
+	lw $16, 8232($4)
+	beq $23, $16, perdeuFimJogo
 
 	addi $24, $24, -1
-	j forMoverMordecaiDiagonalCima
-fimForMoverMordecaiDiagonalCima:
-
-	addi $24, $0, 17
-forMoverMordecaiDiagonalBaixo:	
-	beq $24, $0, fimForMoverMordecaiDiagonalBaixo
-	addi $5, $0, 16 # Altura
-	addi $6, $0, 20 # Largura
-	jal desenharParteCenarioMordecai	
-	
-	addi $4, $4, 524
-	jal desenharMordecai
-	
-	lw $16, 5716($4)
-	beq $23, $16, ganhouFimJogo
-
-	addi $24, $24, -1
-	j forMoverMordecaiDiagonalBaixo
-fimForMoverMordecaiDiagonalBaixo:						
-	j fimMoverMordecai
+	j forMoverMordecaiEmAlgumaDirecaoDescendo
+fimForMoverMordecaiEmAlgumaDirecaoDescendo:						
+	j fimMoverMordecai	
+	jr $31		
 
 ganhouFimJogo:
 	addi $8, $0, 1
