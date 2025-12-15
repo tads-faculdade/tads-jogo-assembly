@@ -1,5 +1,6 @@
 .text
-main:		
+main:	
+	addi $12, $0, 0	
 	lui $4, 0x1001
 	jal desenharFundo
 	
@@ -64,7 +65,7 @@ telaVenceuJogo:
 	j encerraJogo
 
 ##########################################
-# ===== Rotina para desenhar estilingue =====                                               
+# ===== Rotina para desenhar base do porco =====                                               
 # Usa (sem preservar):                   
 #	$16: alcance do laço             
 #	$17: endereço local              
@@ -924,7 +925,7 @@ puloDoMordecai:
 	
 	addi $5, $0, 16
 	addi $6, $0, 20		
-	jal desenharParteCenarioMordecai
+	jal desenharParteCenario
 	
 	addi $4, $4, -1024
 	jal desenharMordecai
@@ -934,7 +935,7 @@ puloDoMordecai:
 	
 	addi $5, $0, 16
 	addi $6, $0, 20
-	jal desenharParteCenarioMordecai
+	jal desenharParteCenario
 	
 	addi $4, $4, 1024
 	jal desenharMordecai
@@ -944,15 +945,15 @@ puloDoMordecai:
 ##############################################################	
 # ===== ROTINA PARA RENDERIZAR CENARIO ATRAS DO MORDECAI =====
 # Entrada:
-#	$4: posicao do mordecai
+#	$4: posicao inicial 
 #	$5: altura do quadrado
 #	$6: largura
 # Usa:
 #	$15, $16, 
 #	$17: copia da posicao do mordecai
-#	$18, $19: loop
+#	$18, $20: loop
 ##############################################################
-desenharParteCenarioMordecai:
+desenharParteCenario:
 	add $17, $0, $4			
 	add $18, $0, $5 # Altura
 forDesenharParteCenarioI:
@@ -990,59 +991,90 @@ controle:
 	lw $16, 0($18)
 	beq $16, $0, fimControle # $16=0 --> nenhuma tecla pressionada
 	
+	lui $4, 0x1001
+	addi $4, $4, -4 # Essa subtracao serve para deixar a barra de forca no canto da tela
+	
 	lw $16, 4($18) 
 	addi $17, $0, 'd'
-	beq $16, $17, frente
-	addi $17, $0, 'w'
-	beq $16, $17, cima
+	beq $16, $17, mudarDistancia
+	
+	lw $16, 4($18) 
+	addi $17, $0, '1'
+	beq $16, $17, mover
+
 fimControle:
 	jr $19
 
-frente:
-	addi $5, $0, 'd'
-	lui $4, 0x1001 # posicao inicial do Mordecai
-	addi $4, $4, 11264 # posicao inicial do Mordecai
-	jal moverMordecai
+mudarDistancia:
+	addi $17, $0, 20
+	beq $12, $17, diminuirDistancia
+	
+	addi $12, $12, 4
+		
+	add $4, $4, $12
+	jal exibirForcaAumentada
+	
 	j fimControle
-cima:
-	addi $5, $0, 'w'
-	lui $4, 0x1001 # posicao inicial do Mordecai
-	addi $4, $4, 11264 # posicao inicial do Mordecai
-	jal moverMordecai
+	
+diminuirDistancia:
+	addi $12, $0, 0
+	jal exibirForcaDiminuida
 	j fimControle
-
-###################################################	
-# ===== ROTINA PARA MOVER O MORDECAI =====
-# Entrada:
-#	$4: sentido do movimento
-#	$5: posicao do mordecai
-# Usa:
-#	$16: valor para comparar a tecla de $4
-# 	$21: copia de $31
-# OBS.: NÃO USAR O REGISTRADOR $19
-####################################################
-moverMordecai:
-	add $21, $0, $31	
-	addi $16, $0, 'd' 
-	beq $5, $16, mordecaiFrente # PODE SUBSTITUIR O VALOR DE $5 DEPOIS DE ENTRAR NUMA FUNCAO
-	addi $16, $0, 'w'
-	beq $5, $16, mordecaiCima
-fimMoverMordecai:
-	jr $21
-
-mordecaiFrente:
+mover:
+	lui $4, 0x1001		# posicao inicial do Mordecai
+	addi $4, $4, 11264 	# posicao inicial do Mordecai
 	addi $6, $0, 17		# Altura do voo
 	addi $7, $0, 512		# Deslocamento
-	addi $8, $0, 12		# Desvio
+	add $8, $0, $12		# Desvio
 	jal moverMordecaiEmAlgumaDirecao
-	j fimMoverMordecai
-mordecaiCima:
-	addi $6, $0, 10		# Altura do voo
-	addi $7, $0, 512		# Deslocamento vertical 
-	addi $8, $0, 8		# Deslocamento horizontal
-	jal moverMordecaiEmAlgumaDirecao
-	j fimMoverMordecai
+	j fimControle
 	
+###################################################	
+# ===== ROTINA PARA EXIBIR A FORCA DO ESTILINGUE =====
+# Entrada:
+#	$4: posicao inicial
+# Usa:
+#	$18: cor
+#	$17, $13, $16, $15
+# OBS.: 
+#	NÃO USAR O REGISTRADOR $19
+#	NÃO USAR O REGISTRADOR $21
+###################################################
+exibirForcaAumentada:
+	add $11, $0, $31
+	
+	ori $18, 0xff00
+	sll $18, $18, 8
+	ori $18, $18, 0x0000 # Vermelho
+	add $13, $0, $4	
+	addi $16, $0, 4 # Altura
+forExibirForcaI:
+	beq $16, $0, endForExibirForcaI
+	addi $17, $0, 2 # Largura
+forExibirForcaJ:
+	beq $17, $0, endForExibirForcaJ
+	sw $18, 0($13)
+	addi $13, $13, 4
+	addi $17, $17, -1
+endForExibirForcaJ:
+	mul $14, $17, 4
+	addi $15, $0, 512
+	sub $15, $15, $14
+	add $13, $13, $15
+	addi $16, $16, -1
+	j forExibirForcaI
+endForExibirForcaI:								
+	jr $11
+
+exibirForcaDiminuida:
+	add $13, $0, $31
+	
+	lui $4, 0x1001
+	addi $5, $0, 4	# altura
+	addi $6, $0, 10 # largura
+	jal desenharParteCenario
+	
+	jr $13
 
 ###################################################	
 # ===== ROTINA PARA MOVER O MORDECAI EM ALGUMA DIREÇÃO =====
@@ -1061,14 +1093,14 @@ mordecaiCima:
 moverMordecaiEmAlgumaDirecao:	
 	add $22, $0, $7
 	add $24, $0, $6
-	sub $7, $0, $7
-	addi $7, $7, 12
+	sub $7, $0, $7 # Para deslocar para cima
+	addi $7, $7, 12 
 forMoverMordecaiEmAlgumaDirecaoSubindo:	
 	beq $24, $0, fimForMoverMordecaiEmAlgumaDirecaoSubindo
 	
 	addi $5, $0, 16 # Altura
 	addi $6, $0, 18 # Largura
-	jal desenharParteCenarioMordecai	
+	jal desenharParteCenario	
 	
 	add $4, $4, $7
 	jal desenharMordecai
@@ -1079,14 +1111,15 @@ forMoverMordecaiEmAlgumaDirecaoSubindo:
 	addi $24, $24, -1
 	j forMoverMordecaiEmAlgumaDirecaoSubindo
 fimForMoverMordecaiEmAlgumaDirecaoSubindo:
+
 	addi $24, $0, 35
 	add $7, $0, $22
 	add $7, $7, $8
 forMoverMordecaiEmAlgumaDirecaoDescendo:	
 	beq $24, $0, fimForMoverMordecaiEmAlgumaDirecaoDescendo
 	addi $5, $0, 16 # Altura
-	addi $6, $0, 19 # Largura
-	jal desenharParteCenarioMordecai	
+	addi $6, $0, 20 # Largura
+	jal desenharParteCenario	
 	
 	add $4, $4, $7
 	jal desenharMordecai
@@ -1107,12 +1140,18 @@ forMoverMordecaiEmAlgumaDirecaoDescendo:
 	ori $23, $23, 0x74 # Cor local: Verde
 	lw $16, 8232($4)
 	beq $23, $16, perdeuFimJogo
-
+	
+	ori $23, $0, 0x8951
+	sll $23, $23, 8
+	ori $23, $23, 0x29
+	lw $16, 5716($4)
+	beq $23, $16, ganhouFimJogo
+	
 	addi $24, $24, -1
 	j forMoverMordecaiEmAlgumaDirecaoDescendo
-fimForMoverMordecaiEmAlgumaDirecaoDescendo:						
-	j fimMoverMordecai	
-	jr $31		
+fimForMoverMordecaiEmAlgumaDirecaoDescendo:							
+	jr $31
+	
 
 ganhouFimJogo:
 	addi $8, $0, 1
