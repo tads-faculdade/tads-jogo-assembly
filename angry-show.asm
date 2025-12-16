@@ -48,6 +48,9 @@ lacoInfinito:
 	addi $4, $4, 11264 # posicao inicial do Mordecaii	
 	jal piscarOlhosMordecai
 	jal puloDoMordecai
+
+	jal birdCry		# dá pra melhorar quando ele é tocado
+		
 	jal desenharBaseMordecai2
 	
 	lui $4, 0x1001
@@ -2498,7 +2501,7 @@ piscarOlhosMordecai:
 	sw $18, 4660($17)
 	addi $5, $0, 50000
 	jal gastarTempo
-		
+	
 	# ABRE
 	ori $18, $0, 0xffff
 	sll $18, $18, 8
@@ -3528,6 +3531,56 @@ gameOverMusic:
 	addi $4, $0, 1000
 	jal pausaMusica
 	
+	lw   $31, 0($29)
+	addi $29, $29, 4
+	jr $31
+
+
+birdCry:
+	# salva endereço de retorno
+	addi $29, $29, -4
+	sw   $31, 0($29)
+
+	addi $6, $0, 30		# Guitar
+	addi $7, $0, 60	# Volume
+	# (C#5 C#5)
+	addi $4, $0, 73
+	addi $5, $0, 50
+	addi $2, $0, 31
+	syscall
+	addi $4, $0, 73
+	addi $2, $0, 31
+	syscall
+	addi $4, $0, 50
+	jal pausaMusica
+
+	# D#5
+	addi $4, $0, 75
+	addi $5, $0, 50
+	addi $2, $0, 31
+	syscall
+	addi $4, $0, 50
+	jal pausaMusica
+
+	# (F#5 D#5)
+	addi $4, $0, 78
+	addi $5, $0, 70
+	addi $2, $0, 31
+	syscall
+	addi $4, $0, 75
+	addi $2, $0, 31
+	syscall
+	addi $4, $0, 7
+	jal pausaMusica
+
+	#
+	addi $4, $0, 36
+	addi $5, $0, 150
+	addi $2, $0, 31
+	syscall
+	addi $4, $0, 150
+	jal pausaMusica
+
 	lw   $31, 0($29)
 	addi $29, $29, 4
 	jr $31
